@@ -2,7 +2,7 @@ cabal-version:       >=1.10
 
 name:                semialign-diff
 version:             0.1.0.0
-synopsis:            Filterable Semialigns can be diffed and patched
+synopsis:            Generic diffing and patching for Semialigns.
 -- description:
 bug-reports:         https://github.com/qfpl/semialign-diff
 license:             BSD3
@@ -19,10 +19,9 @@ library
   exposed-modules:     Data.Semialign.Diff
   ghc-options:         -Wall
   build-depends:       base >= 4.12 && < 4.13
+                     , lens
                      , semialign
-                     , semialign-indexed
                      , these
-                     , witherable
   ghc-options:         -Wall
   default-language:    Haskell2010
 
