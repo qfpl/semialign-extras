@@ -22,7 +22,7 @@ library
   hs-source-dirs:      src
   exposed-modules:     Data.Semialign.Diff
   ghc-options:         -Wall
-  build-depends:       base >= 4.12 && < 4.13
+  build-depends:       base >= 4.8 && < 4.14
                      , lens >= 2.5 && < 4.19
                      , semialign >= 1 && < 1.1
                      , these >= 1 && < 1.1
@@ -33,7 +33,7 @@ test-suite doctests
   type:                exitcode-stdio-1.0
   main-is:             Main.hs
   ghc-options:         -Wall -threaded
-  build-depends:       base >= 4 && < 5
+  build-depends:       base >= 4.8 && < 4.14
                      , QuickCheck >= 2.12.6.1 && < 2.14
                      , doctest >= 0.16.0.1 && < 0.17
   hs-source-dirs:      doctests
