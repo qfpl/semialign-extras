@@ -1,5 +1,6 @@
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE GADTs            #-}
+{-# LANGUAGE LambdaCase       #-}
 {-# LANGUAGE PatternSynonyms  #-}
 {-# LANGUAGE RankNTypes       #-}
 
@@ -24,16 +25,20 @@ might want to (say) diff two @[a]@ into an @'Data.IntMap.IntMap' a@, a
 @'Data.Map.Map' Int a@ or some other structure. This generality can
 hurt type inference.
 
-The type signatures for 'diff' and 'diffNoEq' have the return type as
-their first type variable, so you can set the return type with a
-single type application.
+The type signatures for all functions have the patch type as their
+first type variable. For 'diff'/'diffNoEq'/'diffWith', this allows
+setting the return type with a single type application.
 
 -}
 
 module Data.Semialign.Diff
-  ( diff
+  ( -- * Diffing
+    diff
   , diffNoEq
+  , diffWith
+    -- * Patching
   , patch
+  , patchWith
   ) where
 
 import Control.Lens
@@ -43,6 +48,7 @@ import Control.Lens
   , FoldableWithIndex(..)
   , Index
   , IxValue
+  , set
   )
 import Control.Lens.Operators
 import Data.Semialign (Semialign(..))
@@ -76,13 +82,12 @@ diff
   => f a
   -> f a
   -> p
-diff = (ifoldr step Empty .) . align
-  where
-    step k (This _) = at k ?~ Nothing
-    step k (That new) = at k ?~ Just new
-    step k (These old new)
-      | new == old = id
-      | otherwise = at k ?~ Just new
+diff = diffWith $ \case
+  This _ -> Just Nothing
+  That new -> Just $ Just new
+  These old new
+    | old == new -> Nothing
+    | otherwise -> Just $ Just new
 
 -- | Diff two structures without requiring an 'Eq' instance. Instead,
 -- always assume a new value wherever the structures align:
@@ -108,11 +113,35 @@ diffNoEq
   => f a
   -> f a
   -> p
-diffNoEq = (ifoldr step Empty .) . align
+diffNoEq = diffWith $ Just . \case
+  This _ -> Nothing
+  That new -> Just new
+  These _ new -> Just new
+
+-- | Diff two structures with a custom function.
+--
+-- This function should return 'Nothing' if there is no meaningful
+-- change and @'Just' new@ to indicate a changed value.
+--
+-- Often, @c@ is itself a @'Maybe'@, to indicate deletion/replacement
+-- of a value.
+--
+-- @since 0.1.0.0
+diffWith
+  :: forall p f a b c .
+     ( FoldableWithIndex (Index p) f
+     , Semialign f
+     , AsEmpty p
+     , At p
+     , IxValue p ~ c
+     )
+  => (These a b -> Maybe c)
+  -> f a
+  -> f b
+  -> p
+diffWith f = (ifoldr step Empty .) . align
   where
-    step k (This _) = at k ?~ Nothing
-    step k (That new) = at k ?~ Just new
-    step k (These _ new) = at k ?~ Just new
+    step k = set (at k) . f
 
 -- | Apply a patch to a structure.
 --
@@ -134,7 +163,26 @@ patch
   => p (Maybe a)
   -> m
   -> m
-patch p m = ifoldr step m p
+patch = patchWith $ const id
+
+-- | Apply changes to a structure with a custom function, folding over
+-- the patch.
+--
+-- The provided function receives two arguments: the old value if
+-- present and the new value from the patch. It should return @'Just'
+-- new@ to store @new@ into the result, or 'Nothing' to delete it.
+--
+-- @since 0.1.0.0
+patchWith
+  :: forall p m a b .
+     ( FoldableWithIndex (Index m) p
+     , At m
+     , (IxValue m) ~ a
+     )
+  => (Maybe a -> b -> Maybe a)
+  -> p b
+  -> m
+  -> m
+patchWith f p m = ifoldr step m p
   where
-    step k Nothing = at k .~ Nothing
-    step k (Just new) = at k ?~ new
+    step k v = at k .~ f (m ^. at k) v
