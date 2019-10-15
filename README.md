@@ -1,8 +1,7 @@
 # semialign-diff
 
-If a type is both `Filterable` (from
-[`filterable`](https://hackage.haskell.org/package/witherable)) and
-`Semialign` (from
-[`semialign`](https://hackage.haskell.org/package/semialign)), then
-you can diff values of that type. This is most useful with map-like
-types (`Map`, `HashMap`, `IntMap`).
+The `Semialign` typeclass (from
+[`semialign`](https://hackage.haskell.org/package/semialign)) lets us
+line up two structures of the same type. It's then possible to take a
+simple diff by comparing the points of overlap. This is most useful
+with map-like types (`Map`, `HashMap`, `IntMap`).

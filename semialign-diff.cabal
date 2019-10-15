@@ -2,8 +2,12 @@ cabal-version:       >=1.10
 
 name:                semialign-diff
 version:             0.1.0.0
-synopsis:            Generic diffing and patching for Semialigns.
--- description:
+synopsis:            Generic diffing and patching for Semialigns
+description:
+    The 'Semialign' typeclass lets us line up two structures of the
+    same type. It's then possible to take a simple diff by comparing
+    the points of overlap. This is most useful with map-like types
+    ('Data.Map.Map', 'Data.HashMap.HashMap', 'Data.IntMap.IntMap').
 bug-reports:         https://github.com/qfpl/semialign-diff
 license:             BSD3
 license-file:        LICENSE
