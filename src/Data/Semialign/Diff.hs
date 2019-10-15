@@ -1,5 +1,34 @@
-{-# LANGUAGE GADTs               #-}
-{-# LANGUAGE ScopedTypeVariables #-}
+{-# LANGUAGE FlexibleContexts #-}
+{-# LANGUAGE GADTs            #-}
+{-# LANGUAGE PatternSynonyms  #-}
+{-# LANGUAGE RankNTypes       #-}
+
+{-|
+
+Module      : Data.Semialign.Diff
+Description : Semialigns can be diffed, and sometimes patched
+Copyright   : (c) 2019, Commonwealth Scientific and Industrial Research Organisation
+License     : BSD3
+Maintainer  : jack.kelly@data61.csiro.au
+Stability   : experimental
+Portability : Portable
+
+The 'Semialign' typeclass lets us line up two structures of the same
+type. It's then possible to take a simple diff by comparing the points
+of overlap.
+
+=== A note on type variables
+
+The return type of the diffing functions is very general, because we
+might want to (say) diff two @[a]@ into an @'Data.IntMap.IntMap' a@, a
+@'Data.Map.Map' Int a@ or some other structure. This generality can
+hurt type inference.
+
+The type signatures for 'diff' and 'diffNoEq' have the return type as
+their first type variable, so you can set the return type with a
+single type application.
+
+-}
 
 module Data.Semialign.Diff
   ( diff
@@ -7,13 +36,20 @@ module Data.Semialign.Diff
   , patch
   ) where
 
-import Control.Lens (At(..), FoldableWithIndex(..), Index, IxValue)
+import Control.Lens
+  ( AsEmpty(..)
+  , At(..)
+  , pattern Empty
+  , FoldableWithIndex(..)
+  , Index
+  , IxValue
+  )
 import Control.Lens.Operators
 import Data.Semialign (Semialign(..))
 import Data.These (These(..))
 
 -- $setup
--- >>> :set -XGeneralizedNewtypeDeriving -XStandaloneDeriving -XTypeApplications
+-- >>> :set -XTypeApplications
 -- >>> import Data.Map (Map, (!), fromList)
 
 -- | Diff two structures.
@@ -29,19 +65,18 @@ import Data.These (These(..))
 --
 -- @since 0.1.0.0
 diff
-  :: forall p f a i .
-     ( FoldableWithIndex i f
+  :: forall p f a .
+     ( FoldableWithIndex (Index p) f
      , Semialign f
      , Eq a
-     , Monoid p
+     , AsEmpty p
      , At p
-     , Index p ~ i
      , IxValue p ~ (Maybe a)
      )
   => f a
   -> f a
   -> p
-diff = (ifoldr step mempty .) . align
+diff = (ifoldr step Empty .) . align
   where
     step k (This _) = at k ?~ Nothing
     step k (That new) = at k ?~ Just new
@@ -63,18 +98,17 @@ diff = (ifoldr step mempty .) . align
 --
 -- @since 0.1.0.0
 diffNoEq
-  :: forall p f a i .
-     ( FoldableWithIndex i f
+  :: forall p f a .
+     ( FoldableWithIndex (Index p) f
      , Semialign f
-     , Monoid p
+     , AsEmpty p
      , At p
-     , Index p ~ i
      , IxValue p ~ Maybe a
      )
   => f a
   -> f a
   -> p
-diffNoEq = (ifoldr step mempty .) . align
+diffNoEq = (ifoldr step Empty .) . align
   where
     step k (This _) = at k ?~ Nothing
     step k (That new) = at k ?~ Just new
@@ -90,26 +124,17 @@ diffNoEq = (ifoldr step mempty .) . align
 -- prop> \old new -> let p = diff @(Map Int (Maybe Int)) old (new :: Map Int Int) in (patch p old) == new
 -- prop> \old new -> let p = diffNoEq @(Map Int (Maybe Int)) old (new :: Map Int Int) in (patch p old) == new
 --
--- If @p@ is a 'Map', 'patch' is a
--- <https://en.wikipedia.org/wiki/Semigroup_action monoid action> on
--- 'm':
---
--- prop> \p1 p2 m -> let p1Type = p1 :: Map Int (Maybe Int) in patch (p1 <> p2) (m :: Map Int Int) == patch p1 (patch p2 m)
--- prop> \m -> let nil = mempty :: Map Int (Maybe Int) in patch nil (m :: Map Int Int) == m
---
--- This is not true for every monoidal @p@.
---
 -- @since 0.1.0.0
 patch
-  :: forall p i m a .
-     ( FoldableWithIndex i p
+  :: forall p m a .
+     ( FoldableWithIndex (Index m) p
      , At m
-     , Index m ~ i
      , IxValue m ~ a
      )
   => p (Maybe a)
   -> m
   -> m
-patch = flip $ ifoldr step
+patch p m = ifoldr step m p
   where
-    step k ma = at k .~ ma
+    step k Nothing = at k .~ Nothing
+    step k (Just new) = at k ?~ new
