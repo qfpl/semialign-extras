@@ -2,6 +2,8 @@
 
 ![Data61 Logo](https://raw.githubusercontent.com/qfpl/assets/master/data61-transparent-bg.png)
 
+[![Build Status](https://travis-ci.org/qfpl/semialign-diff.svg?branch=master)](https://travis-ci.org/qfpl/semialign-diff)
+
 The `Semialign` typeclass (from
 [`semialign`](https://hackage.haskell.org/package/semialign)) lets us
 line up two structures of the same type. By combining this with the
