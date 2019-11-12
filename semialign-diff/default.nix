@@ -1,4 +1,4 @@
-{ nixpkgs ? import ./nix/nixpkgs.nix
+{ nixpkgs ? import ../nix/nixpkgs.nix
 , compiler ? "default"
 , doBenchmark ? false
 }:
@@ -7,9 +7,17 @@ let
 
   inherit (nixpkgs) pkgs;
 
-  haskellPackages = if compiler == "default"
-                       then pkgs.haskellPackages
-                       else pkgs.haskell.packages.${compiler};
+  baseHaskellPackages =
+    if compiler == "default"
+    then pkgs.haskellPackages
+    else pkgs.haskell.packages.${compiler};
+
+  haskellPackages = baseHaskellPackages.override {
+    overrides = self: super: {
+      semialign-merge =
+        self.callPackage (import ../semialign-merge/semialign-merge.nix) {};
+    };
+  };
 
   variant = if doBenchmark then pkgs.haskell.lib.doBenchmark else pkgs.lib.id;
 in
