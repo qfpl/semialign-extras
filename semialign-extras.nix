@@ -1,14 +1,14 @@
 { mkDerivation, base, doctest, lens, QuickCheck, semialign
-, semialign-merge, stdenv, these
+, semialign-indexed, stdenv, these, witherable
 }:
 mkDerivation {
-  pname = "semialign-diff";
+  pname = "semialign-extras";
   version = "0.1.0.0";
   src = ./.;
   libraryHaskellDepends = [
-    base lens semialign semialign-merge these
+    base lens semialign semialign-indexed these witherable
   ];
   testHaskellDepends = [ base doctest QuickCheck ];
-  description = "Generic diffing and patching for Semialigns";
+  description = "Extra functions for working with Semialigns";
   license = stdenv.lib.licenses.bsd3;
 }

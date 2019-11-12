@@ -14,7 +14,7 @@ module Data.Semialign.Merge
 import Data.Semialign (Semialign(..))
 import Data.Semialign.Indexed (SemialignWithIndex(..))
 import Data.These (these)
-import Data.Witherable
+import Data.Witherable (Filterable(..), Witherable(..))
 
 merge
   :: Semialign t
