@@ -20,12 +20,12 @@ of overlap.
 === A note on type variables
 
 The return type of the diffing functions is very general, because we
-might want to (say) diff two @[a]@ into an @'Data.IntMap.IntMap' a@, a
+might want to (say) diff two @[a]@ into an @'Data.IntMap.IntMap' a@,
 @'Data.Map.Map' Int a@ or some other structure. This generality can
 hurt type inference.
 
 The type signatures for all functions have the patch type as their
-first type variable. For 'diff'/'diffNoEq'/'diffWith', this allows
+first type variable. For 'diff' \/ 'diffNoEq' \/ 'diffWith', this allows
 setting the return type with a single type application.
 
 -}

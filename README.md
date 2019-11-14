@@ -22,6 +22,8 @@ abstractions/operations that:
 
 2. Do not belong inside other packages in the `semialign` universe.
 
+PRs that serve these goals are most welcome.
+
 ### Rationale
 
 `semialign` has a very lean dependency footprint, and its authors
