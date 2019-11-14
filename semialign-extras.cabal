@@ -7,7 +7,7 @@ description:
     The 'Semialign' typeclass lets us line up two structures of the
     same type. By combining this with the classes from the
     "witherable" package, we can derive a number of useful
-    diff/patch/merge-style operations.
+    diff \/ patch \/ merge-style operations.
 bug-reports:         https://github.com/qfpl/semialign-extras
 license:             BSD3
 license-file:        LICENSE
