@@ -7,7 +7,6 @@
 {-|
 
 Module      : Data.Semialign.Diff
-Description : Semialigns can be diffed, and sometimes patched
 Copyright   : (c) 2019, Commonwealth Scientific and Industrial Research Organisation
 License     : BSD3
 Maintainer  : jack.kelly@data61.csiro.au
@@ -71,12 +70,13 @@ import Data.These (These(..))
 --
 -- @since 0.1.0.0
 diff
-  :: forall p f a .
-     ( FoldableWithIndex (Index p) f
+  :: forall p f i a .
+     ( FoldableWithIndex i f
      , Semialign f
      , Eq a
      , AsEmpty p
      , At p
+     , Index p ~ i
      , IxValue p ~ (Maybe a)
      )
   => f a
@@ -103,11 +103,12 @@ diff = diffWith $ \case
 --
 -- @since 0.1.0.0
 diffNoEq
-  :: forall p f a .
-     ( FoldableWithIndex (Index p) f
+  :: forall p f i a .
+     ( FoldableWithIndex i f
      , Semialign f
      , AsEmpty p
      , At p
+     , Index p ~ i
      , IxValue p ~ Maybe a
      )
   => f a
@@ -128,11 +129,12 @@ diffNoEq = diffWith $ Just . \case
 --
 -- @since 0.1.0.0
 diffWith
-  :: forall p f a b c .
-     ( FoldableWithIndex (Index p) f
+  :: forall p f i a b c .
+     ( FoldableWithIndex i f
      , Semialign f
      , AsEmpty p
      , At p
+     , Index p ~ i
      , IxValue p ~ c
      )
   => (These a b -> Maybe c)
@@ -155,9 +157,10 @@ diffWith f = (ifoldr step Empty .) . align
 --
 -- @since 0.1.0.0
 patch
-  :: forall p m a .
-     ( FoldableWithIndex (Index m) p
+  :: forall p m i a .
+     ( FoldableWithIndex i p
      , At m
+     , Index m ~ i
      , IxValue m ~ a
      )
   => p (Maybe a)
@@ -174,10 +177,11 @@ patch = patchWith $ const id
 --
 -- @since 0.1.0.0
 patchWith
-  :: forall p m a b .
-     ( FoldableWithIndex (Index m) p
+  :: forall p m i a b .
+     ( FoldableWithIndex i p
      , At m
-     , (IxValue m) ~ a
+     , Index m ~ i
+     , IxValue m ~ a
      )
   => (Maybe a -> b -> Maybe a)
   -> p b
@@ -185,4 +189,4 @@ patchWith
   -> m
 patchWith f p m = ifoldr step m p
   where
-    step k v = at k .~ f (m ^. at k) v
+    step k v = at k %~ flip f v

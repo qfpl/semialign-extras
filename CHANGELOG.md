@@ -1,4 +1,4 @@
-# Revision history for semialign-diff
+# Revision history for semialign-extras
 
 ## 0.1.0.0 -- YYYY-mm-dd
 
