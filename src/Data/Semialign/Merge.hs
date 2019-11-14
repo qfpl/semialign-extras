@@ -13,8 +13,8 @@ typeclasses to do filtering, 'Applicative' effects, or tracking
 indices.
 
 'merge' is the simplest function. It takes five arguments: functions
-to handle values present in the left \/ right \/both structures and two
-structures to merge.
+to handle values present in the left \/ right \/ both structures and
+two structures to merge.
 
 @
 merge :: Semialign t
