@@ -13,7 +13,7 @@ typeclasses to do filtering, 'Applicative' effects, or tracking
 indices.
 
 'merge' is the simplest function. It takes five arguments: functions
-to handle values present in the left/right/both structures and two
+to handle values present in the left \/ right \/both structures and two
 structures to merge.
 
 @
@@ -23,8 +23,8 @@ merge :: Semialign t
   -> t c
 @
 
-Every other function in this module is a variant with functionality
-based on its name:
+Every other function in this module is a variant with modified
+functionality based on its name:
 
 * Prefix @i@ means an "indexed" variant: each function argument takes
   an additional index (@i@) parameter.
