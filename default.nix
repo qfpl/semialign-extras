@@ -7,10 +7,17 @@ let
 
   inherit (nixpkgs) pkgs;
 
-  haskellPackages =
+  baseHaskellPackages =
     if compiler == "default"
     then pkgs.haskellPackages
     else pkgs.haskell.packages.${compiler};
+
+  haskellPackages = baseHaskellPackages.override {
+    overrides = with pkgs.haskell.lib; self: super: {
+      semialign = super.semialign_1_1;
+      semialign-indexed = unmarkBroken super.semialign-indexed;
+    };
+  };
 
   variant = if doBenchmark then pkgs.haskell.lib.doBenchmark else pkgs.lib.id;
 in
