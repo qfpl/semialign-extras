@@ -124,7 +124,7 @@ diffNoEq = diffWith $ Just . \case
 -- This function should return 'Nothing' if there is no meaningful
 -- change and @'Just' new@ to indicate a changed value.
 --
--- Often, @c@ is itself a @'Maybe'@, to indicate deletion/replacement
+-- Often, @c@ is itself a @'Maybe' d@, to indicate deletion/replacement
 -- of a value.
 --
 -- @since 0.1.0.0
