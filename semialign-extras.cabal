@@ -39,7 +39,6 @@ library
                      , semialign-indexed >= 1 && < 1.2
                      , these >= 1 && < 1.1
                      , witherable >= 0.2 && < 0.4
-  ghc-options:         -Wall
   default-language:    Haskell2010
 
 test-suite doctests
